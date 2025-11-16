@@ -16,8 +16,7 @@ def django_setup():
 
 
 def get_books_by_author(author_name: str):
-    """Return all Book objects written by the given author's name."""
-    # get the Author instance first, then filter Books by that FK
+    
     from relationship_app.models import Author, Book
 
     try:
@@ -29,7 +28,7 @@ def get_books_by_author(author_name: str):
 
 
 def list_books_in_library(library_name: str):
-    """Return all Book objects that are related to the named Library."""
+    
     from relationship_app.models import Library
 
     try:
@@ -41,7 +40,7 @@ def list_books_in_library(library_name: str):
 
 
 def get_librarian_for_library(library_name: str):
-    """Return the Librarian instance for the given library name, or None if not found."""
+   
     from relationship_app.models import Library, Librarian
 
     try:
@@ -49,9 +48,9 @@ def get_librarian_for_library(library_name: str):
     except Library.DoesNotExist:
         return None
 
-    # OneToOneField creates a reverse attribute on Library with the lowercase model name by default
+    # find the pattern `Librarian.objects.get(library=...)`.
     try:
-        return lib.librarian
+        return Librarian.objects.get(library=lib)
     except Librarian.DoesNotExist:
         return None
 
