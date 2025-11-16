@@ -17,10 +17,15 @@ def django_setup():
 
 def get_books_by_author(author_name: str):
     """Return all Book objects written by the given author's name."""
-    from relationship_app.models import Book
+    # get the Author instance first, then filter Books by that FK
+    from relationship_app.models import Author, Book
 
-    # filter by related field value
-    return Book.objects.filter(author__name=author_name)
+    try:
+        author = Author.objects.get(name=author_name)
+    except Author.DoesNotExist:
+        return Book.objects.none()
+
+    return Book.objects.filter(author=author)
 
 
 def list_books_in_library(library_name: str):
