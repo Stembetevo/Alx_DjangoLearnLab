@@ -1,24 +1,15 @@
 from django.http import HttpResponse
-from django.views.generic import DetailView,ListView
+from django.shortcuts import render
+from django.views.generic import DetailView, ListView
 
-from .models import Book,Library
+from .models import Book, Library
+
 
 def list_books(request):
+    
     books = Book.objects.all()
 
-    lines = []
-    for book in books:
-        # try common field names and fall back to str(b)
-        title = getattr(book, 'title', None) or str(book)
-        author = getattr(book, 'author', None) or 'Unknown'
-        lines.append(f"{title} — {author}")
-
-    if not lines:
-        body = "No books found."
-    else:
-        body = "\n".join(lines)
-
-    return HttpResponse(body, content_type="text/plain")
+    return render(request, 'relationship_app/list_books.html', {'books': books})
 
 # Class-based view that displays details for a specific Library and lists its books.
 class LibraryDetailView(DetailView):
