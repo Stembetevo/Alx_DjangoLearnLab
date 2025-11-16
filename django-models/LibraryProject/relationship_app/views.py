@@ -1,7 +1,7 @@
 from django.http import HttpResponse
 from django.shortcuts import render
-from django.views.generic import DetailView, ListView
-
+from django.views.generic import DetailView
+from django.views.generic import ListView
 from .models import Book
 from .models import Library
 #Function based views that displays book details through a template
