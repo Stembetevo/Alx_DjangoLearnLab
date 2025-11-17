@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Member Dashboard</title>
+</head>
+<body>
+    <header>
+        <h1>Member Dashboard</h1>
+    </header>
+
+    <main>
+        <p>Welcome, {{ user.username }}!</p>
+        <p>This area is for users with the <strong>Member</strong> role.</p>
+
+        <!-- Add member-specific content here -->
+    </main>
+
+    <footer>
+        <p><a href="{% url 'logout' %}">Logout</a></p>
+    </footer>
+</body>
+</html>

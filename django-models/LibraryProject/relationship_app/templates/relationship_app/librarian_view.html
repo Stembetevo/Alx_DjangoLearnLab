@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Librarian Dashboard</title>
+</head>
+<body>
+    <header>
+        <h1>Librarian Dashboard</h1>
+    </header>
+
+    <main>
+        <p>Welcome, {{ user.username }}!</p>
+        <p>This area is for users with the <strong>Librarian</strong> role.</p>
+
+        <!-- Add librarian-specific content here -->
+    </main>
+
+    <footer>
+        <p><a href="{% url 'logout' %}">Logout</a></p>
+    </footer>
+</body>
+</html>
