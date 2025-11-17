@@ -1,0 +1,22 @@
+{% comment %}Simple list of books and authors (plain HTML).{% endcomment %}
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Book list</title>
+</head>
+<body>
+  <h1>Books</h1>
+  {% if books %}
+    <ul>
+      {% for book in books %}
+        <li>
+          {{ book.title }} — {% if book.author.name %}{{ book.author.name }}{% else %}{{ book.author }}{% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No books found.</p>
+  {% endif %}
+</body>
+</html>

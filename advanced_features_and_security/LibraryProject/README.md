@@ -1,0 +1,1 @@
+First Django Initialization. Letsss ggoooooooo!!!!!

@@ -1,0 +1,21 @@
+{# Template for LibraryDetailView - lists all books in the library #}
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{{ library.name }} — Library</title>
+</head>
+<body>
+  <h1>{{ library.name }}</h1>
+
+  {% if books %}
+    <ul>
+      {% for book in books %}
+        <li>{{ book.title }} — {% if book.author.name %}{{ book.author.name }}{% else %}{{ book.author }}{% endif %}</li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No books found in this library.</p>
+  {% endif %}
+</body>
+</html>
