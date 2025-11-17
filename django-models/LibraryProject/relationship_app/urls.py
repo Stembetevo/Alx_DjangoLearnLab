@@ -16,7 +16,7 @@ urlpatterns = [
 
     # Class based authentication views
     # expose a function-like reference to the registration view (views.register will be created)
-    path('registration/', views.register, name="registration"),
+    path('register/', views.register, name="register"),
 
     # template paths include the app folder (relationship_app)
     path('login/', LoginView.as_view(template_name="relationship_app/login.html"), name="login"),
