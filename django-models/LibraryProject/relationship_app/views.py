@@ -50,3 +50,8 @@ class SignUpView(CreateView):
     # templates are placed under relationship_app/templates/relationship_app/
     template_name = 'relationship_app/registration.html'
     
+
+# provide a function-style reference expected by some checks/tests
+# this makes `views.register` available and points to the class-based SignUpView
+register = SignUpView.as_view()
+    
