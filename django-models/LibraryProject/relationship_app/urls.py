@@ -28,6 +28,11 @@ urlpatterns = [
     #Role Based Access RBAC
     path('admin-only/', admin_view, name="admin_only"),
     path('librarian-only/', librarian_view, name="librarian-only"),
-    path('member-only/', member_view, name="member_only")
+    path('member-only/', member_view, name="member_only"),
+
+    # Secured book management URLs
+    path('books/add/', views.add_book, name='book-add'),
+    path('books/<int:pk>/edit/', views.edit_book, name='book-edit'),
+    path('books/<int:pk>/delete/', views.delete_book, name='book-delete'),
 
 ]

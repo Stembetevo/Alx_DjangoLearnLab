@@ -11,6 +11,10 @@ from .models import Book
 from .models import Library
 from django.contrib.auth.decorators import user_passes_test
 from .models import UserProfile
+from django.contrib.auth.decorators import permission_required
+from django.forms import modelform_factory
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
 
 #Function based views that displays book details through a template
 def list_books(request):
@@ -99,3 +103,44 @@ def admin_view_role(request):
     #Admin-only view rendering the admin template.
     context = {'title': 'Admin dashboard'}
     return render(request, 'relationship_app/admin_view.html', context)
+
+
+# --- Book create / update / delete views protected by permissions ---
+BookForm = modelform_factory(Book, fields=['title', 'author'])
+
+
+@permission_required('relationship_app.can_add_book', raise_exception=True)
+def add_book(request):
+    if request.method == 'POST':
+        form = BookForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect(reverse('book-list'))
+    else:
+        form = BookForm()
+
+    return render(request, 'relationship_app/book_form.html', {'form': form, 'action': 'Add'})
+
+
+@permission_required('relationship_app.can_change_book', raise_exception=True)
+def edit_book(request, pk):
+    book = get_object_or_404(Book, pk=pk)
+    if request.method == 'POST':
+        form = BookForm(request.POST, instance=book)
+        if form.is_valid():
+            form.save()
+            return redirect(reverse('book-list'))
+    else:
+        form = BookForm(instance=book)
+
+    return render(request, 'relationship_app/book_form.html', {'form': form, 'action': 'Edit', 'book': book})
+
+
+@permission_required('relationship_app.can_delete_book', raise_exception=True)
+def delete_book(request, pk):
+    book = get_object_or_404(Book, pk=pk)
+    if request.method == 'POST':
+        book.delete()
+        return redirect(reverse('book-list'))
+
+    return render(request, 'relationship_app/book_confirm_delete.html', {'book': book})
