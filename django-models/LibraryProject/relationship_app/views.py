@@ -3,8 +3,12 @@ from django.shortcuts import render
 from django.views.generic import DetailView, ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
+from django.contrib.auth.forms import UserCreationForm
+from django.urls import reverse_lazy
+from django.views.generic import CreateView
 from .models import Book
 from .models import Library
+
 #Function based views that displays book details through a template
 def list_books(request):
     
@@ -35,8 +39,13 @@ class LibraryDetailView(DetailView):
         }
 
         return render(request, 'relationship_app/library_detail.html', context)
+
+#Authentication views
+
+#Registration View
+class SignUpView(CreateView):
+    form_class = UserCreationForm
+    success_url = reverse_lazy('login')
+    # templates are placed under relationship_app/templates/relationship_app/
+    template_name = 'relationship_app/registration.html'
     
-
-    
-
-
