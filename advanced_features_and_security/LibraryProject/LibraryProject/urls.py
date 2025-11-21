@@ -19,6 +19,8 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # Include relationship_app URLs at the project root (adjust prefix as desired)
+
     path('', include('relationship_app.urls')),
+    # Bookshelf app URLs
+    path('books/', include('bookshelf.urls')),
 ]

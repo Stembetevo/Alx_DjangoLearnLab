@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q
 
 from .models import Book
+from .forms import ExampleForm
 
 
 class BookForm(ModelForm):
@@ -86,3 +87,27 @@ def delete_book(request, pk):
 		book.delete()
 		return redirect('bookshelf:list_books')
 	return render(request, 'bookshelf/book_confirm_delete.html', {'book': book})
+
+
+@login_required
+def example_form(request):
+	"""Render a simple example form. If the user has `bookshelf.can_create`, allow
+	creating a `Book` from the submitted data; otherwise add a non-field error.
+	This demonstrates secure form handling and permission checks.
+	"""
+	if request.method == 'POST':
+		form = ExampleForm(request.POST)
+		if form.is_valid():
+			data = form.cleaned_data
+			if request.user.has_perm('bookshelf.can_create'):
+				Book.objects.create(
+					title=data.get('title'),
+					author=data.get('author'),
+					publication_year=data.get('publication_year') or None,
+				)
+				return redirect('bookshelf:list_books')
+			else:
+				form.add_error(None, 'You do not have permission to create a book.')
+	else:
+		form = ExampleForm()
+	return render(request, 'bookshelf/form_example.html', {'form': form})
