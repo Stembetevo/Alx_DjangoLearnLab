@@ -1,6 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, permission_required
-from django.forms import ModelForm
+from django.forms import ModelForm, Form, CharField
+from django.core.exceptions import ValidationError
+from django.db.models import Q
 
 from .models import Book
 
@@ -11,11 +13,34 @@ class BookForm(ModelForm):
 		fields = ["title", "author", "publication_year"]
 
 
+class SearchForm(Form):
+	q = CharField(max_length=100, required=False)
+
+	def clean_q(self):
+		value = self.cleaned_data.get('q', '')
+		value = value.strip()
+		# Basic validation: limit length and forbid suspicious input
+		if len(value) > 100:
+			raise ValidationError('Search query too long')
+		return value
+
+
 @login_required
 @permission_required('bookshelf.can_view', raise_exception=True)
 def list_books(request):
-	books = Book.objects.all()
-	return render(request, 'bookshelf/book_list.html', {'books': books})
+	# Provide optional search via GET ?q=...
+	form = SearchForm(request.GET)
+	if form.is_valid():
+		q = form.cleaned_data.get('q')
+		if q:
+			# Use ORM parameterized lookups to avoid SQL injection
+			books = Book.objects.filter(Q(title__icontains=q) | Q(author__icontains=q))
+		else:
+			books = Book.objects.all()
+	else:
+		# On invalid input, default to empty queryset to be safe
+		books = Book.objects.none()
+	return render(request, 'bookshelf/book_list.html', {'books': books, 'search_form': form})
 
 
 @login_required
@@ -31,6 +56,7 @@ def create_book(request):
 	if request.method == 'POST':
 		form = BookForm(request.POST)
 		if form.is_valid():
+			# Using ModelForm ensures data is validated/cleaned before saving
 			form.save()
 			return redirect('bookshelf:list_books')
 	else:

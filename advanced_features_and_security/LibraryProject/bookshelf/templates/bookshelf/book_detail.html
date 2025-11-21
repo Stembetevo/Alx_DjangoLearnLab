@@ -1,0 +1,16 @@
+{% load static %}
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Book detail</title>
+</head>
+<body>
+  <h1>{{ book.title }}</h1>
+  <p>Author: {{ book.author }}</p>
+  <p>Year: {{ book.publication_year }}</p>
+  <a href="{% url 'bookshelf:edit_book' book.pk %}">Edit</a>
+  <a href="{% url 'bookshelf:delete_book' book.pk %}">Delete</a>
+  <a href="{% url 'bookshelf:list_books' %}">Back</a>
+</body>
+</html>

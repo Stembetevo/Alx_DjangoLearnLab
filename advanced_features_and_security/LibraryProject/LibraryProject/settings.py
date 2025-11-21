@@ -22,10 +22,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-t04p6if)2ng%(w-vayqbjo5y_7pnj#nf&$&h2(848syk66+e1+'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# SECURITY NOTE: set DEBUG=False in production for safety
+DEBUG = False
 
-ALLOWED_HOSTS = []
+# Update ALLOWED_HOSTS for your deployment; localhost and 127.0.0.1
+# are included for local testing when DEBUG=False. Replace or extend
+# this list for your real production hostnames.
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 
 # Application definition
@@ -43,6 +46,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'libraryProject.middleware.ContentSecurityPolicyMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -125,3 +129,23 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# --- Security-related settings ---
+# Enable browser XSS filter
+SECURE_BROWSER_XSS_FILTER = True
+# Prevent the browser from guessing the content type
+SECURE_CONTENT_TYPE_NOSNIFF = True
+# Restrict site from being framed
+X_FRAME_OPTIONS = 'DENY'
+
+# Ensure cookies are only sent over HTTPS in production
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
+# Optional: set HSTS (uncomment and tune for production over HTTPS)
+# SECURE_HSTS_SECONDS = 3600
+# SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+# SECURE_HSTS_PRELOAD = True
+
+# Note: Content-Security-Policy is set by the custom middleware
+

@@ -1,0 +1,24 @@
+{% load static %}
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Books</title>
+</head>
+<body>
+  <h1>Books</h1>
+  <form method="get">
+    {% csrf_token %}
+    {{ search_form.q.label_tag }} {{ search_form.q }}
+    <button type="submit">Search</button>
+  </form>
+  <ul>
+  {% for book in books %}
+    <li><a href="{% url 'bookshelf:view_book' book.pk %}">{{ book }}</a></li>
+  {% empty %}
+    <li>No books found.</li>
+  {% endfor %}
+  </ul>
+  <a href="{% url 'bookshelf:create_book' %}">Create book</a>
+</body>
+</html>

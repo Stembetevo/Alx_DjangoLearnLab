@@ -1,0 +1,17 @@
+{% load static %}
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Confirm delete</title>
+</head>
+<body>
+  <h1>Confirm delete</h1>
+  <p>Are you sure you want to delete "{{ book }}"?</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit">Yes, delete</button>
+  </form>
+  <a href="{% url 'bookshelf:list_books' %}">Cancel</a>
+</body>
+</html>
