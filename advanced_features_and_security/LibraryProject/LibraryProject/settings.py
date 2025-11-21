@@ -142,35 +142,13 @@ X_FRAME_OPTIONS = 'DENY'
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 
-# Optional: set HSTS (uncomment and tune for production over HTTPS)
-# Redirect all HTTP requests to HTTPS in production
-# When True, Django will redirect all HTTP requests to HTTPS using a
-# 301 redirect. Only enable this when your site is served over HTTPS.
+
 SECURE_SSL_REDIRECT = True
 
-# HTTP Strict Transport Security (HSTS)
-# Instruct browsers to only access the site over HTTPS for the given time
-# (seconds). 31536000 = 1 year and is commonly used when you're ready
-# to enforce HTTPS permanently. Use a smaller value while testing.
 SECURE_HSTS_SECONDS = 31536000
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 
-# If your site is behind a proxy/load balancer (e.g. nginx, AWS ELB)
-# which terminates TLS and forwards traffic to Django via HTTP, set the
-# following so Django knows the original request scheme. Ensure your
-# proxy sets the `X-Forwarded-Proto` header.
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-# Note: Content-Security-Policy is set by the custom middleware
-
-# ---------------------------------------------------------------------------
-# Notes / Cautions
-# - These settings are intended for production environments served over HTTPS.
-# - During local development you may want to keep `DEBUG=True` and
-#   `SECURE_SSL_REDIRECT=False` or conditionally set these using environment
-#   variables to avoid redirect loops.
-# - Enabling HSTS with a large `SECURE_HSTS_SECONDS` and `PRELOAD=True`
-#   should only be done after you are sure all subdomains support HTTPS.
-# ---------------------------------------------------------------------------
 
