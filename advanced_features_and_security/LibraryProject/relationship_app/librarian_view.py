@@ -12,11 +12,6 @@ def _is_librarian(user):
 @user_passes_test(_is_librarian, login_url='login')
 def librarian_view(request):
     
-    context = { 'title': 'LibrarianFor each role, create an HTML template to display relevant content when users access their respective views.
-
-Templates to Create:
-
-admin_view.html for Admin users.
-librarian_view.html for Librarians.
-member_view.html for Members. dashboard ' }
+    # concise title for the librarian dashboard view
+    context = { 'title': 'Librarian Dashboard' }
     return render(request, 'relationship_app/templates/relationship_app/librarian_view.html', context)
