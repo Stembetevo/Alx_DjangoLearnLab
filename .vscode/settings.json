@@ -1,0 +1,8 @@
+{
+  // Point VS Code / Pylance to the project's virtualenv (create it at api_project/.venv)
+  "python.defaultInterpreterPath": "${workspaceFolder}/api_project/.venv/bin/python",
+  // Helpful search path for local imports inside the api_project package
+  "python.analysis.extraPaths": ["${workspaceFolder}/api_project"],
+  // Recommendation: enable type checking / strictness as desired
+  "python.analysis.typeCheckingMode": "basic"
+}
