@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from rest_framework import generics, viewsets
+from rest_framework import generics, viewsets, permissions
 from .models import Book
 from .serializers import BookSerializer
 
@@ -11,6 +11,7 @@ class BookList(generics.ListAPIView):
 
 
 class BookViewSet(viewsets.ModelViewSet):
-    """ViewSet providing CRUD operations for the Book model."""
     queryset = Book.objects.all()
     serializer_class = BookSerializer
+    # Allow read-only access to unauthenticated users, require authentication for writes
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
