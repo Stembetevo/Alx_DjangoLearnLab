@@ -1,4 +1,5 @@
 from rest_framework.test import APITestCase
+from rest_framework import status
 from django.urls import reverse
 from django.contrib.auth.models import User
 from .models import Author, Book
@@ -24,14 +25,16 @@ class SimpleBookAPITests(APITestCase):
 
 	def test_list_books(self):
 		resp = self.client.get(self.list_url)
-		self.assertEqual(resp.status_code, 200)
+		self.assertEqual(resp.status_code, status.HTTP_200_OK)
+		# parse JSON response body
+		data = json.loads(resp.content)
 		# Expect two books
-		self.assertEqual(len(resp.json()), 2)
+		self.assertEqual(len(data), 2)
 
 	def test_filter_by_title(self):
 		resp = self.client.get(self.list_url, {'title': 'Alpha'})
-		self.assertEqual(resp.status_code, 200)
-		data = resp.json()
+		self.assertEqual(resp.status_code, status.HTTP_200_OK)
+		data = json.loads(resp.content)
 		self.assertEqual(len(data), 1)
 		self.assertEqual(data[0]['title'], 'Alpha')
 
