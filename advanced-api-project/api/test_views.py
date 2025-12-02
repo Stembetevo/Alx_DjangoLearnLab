@@ -24,10 +24,10 @@ class SimpleBookAPITests(APITestCase):
 		self.delete_url = lambda pk: reverse('book-delete', args=[pk])
 
 	def test_list_books(self):
-		resp = self.client.get(self.list_url)
-		self.assertEqual(resp.status_code, status.HTTP_200_OK)
+		response = self.client.get(self.list_url)
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
 		# parse JSON response body
-		data = json.loads(resp.content)
+		data = json.loads(response.data)
 		# Expect two books
 		self.assertEqual(len(data), 2)
 
