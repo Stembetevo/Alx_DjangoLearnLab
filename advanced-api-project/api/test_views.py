@@ -1,11 +1,11 @@
-from django.test import TestCase
+from rest_framework.test import APITestCase
 from django.urls import reverse
 from django.contrib.auth.models import User
 from .models import Author, Book
 import json
 
 
-class SimpleBookAPITests(TestCase):
+class SimpleBookAPITests(APITestCase):
 	def setUp(self):
 		# create a user for authenticated operations
 		self.user = User.objects.create_user(username='tester', password='pass')
