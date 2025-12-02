@@ -58,8 +58,8 @@ class SimpleBookAPITests(APITestCase):
 		resp = self.client.post(self.create_url, data=json.dumps(payload), content_type='application/json')
 		self.assertNotEqual(resp.status_code, 201)
 
-		# authenticate and create
-		self.client.force_login(self.user)
+		# authenticate and create (use client.login for test DB auth)
+		self.client.login(username='tester', password='pass')
 		resp = self.client.post(self.create_url, data=json.dumps(payload), content_type='application/json')
 		self.assertEqual(resp.status_code, 201)
 		self.assertTrue(Book.objects.filter(title='Gamma').exists())
@@ -70,8 +70,8 @@ class SimpleBookAPITests(APITestCase):
 		resp = self.client.put(self.update_url(self.book1.pk), data=json.dumps(update_payload), content_type='application/json')
 		self.assertNotEqual(resp.status_code, 200)
 
-		# authenticate and update
-		self.client.force_login(self.user)
+		# authenticate and update (use client.login for test DB auth)
+		self.client.login(username='tester', password='pass')
 		resp = self.client.put(self.update_url(self.book1.pk), data=json.dumps(update_payload), content_type='application/json')
 		self.assertEqual(resp.status_code, 200)
 		self.book1.refresh_from_db()
@@ -82,8 +82,8 @@ class SimpleBookAPITests(APITestCase):
 		resp = self.client.delete(self.delete_url(self.book2.pk))
 		self.assertNotEqual(resp.status_code, 204)
 
-		# authenticate and delete
-		self.client.force_login(self.user)
+		# authenticate and delete (use client.login for test DB auth)
+		self.client.login(username='tester', password='pass')
 		resp = self.client.delete(self.delete_url(self.book2.pk))
 		# DRF may return 204 No Content or 200 OK depending on configuration
 		self.assertIn(resp.status_code, (200, 204))
