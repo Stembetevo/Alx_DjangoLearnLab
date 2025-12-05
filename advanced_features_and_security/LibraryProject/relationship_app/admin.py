@@ -4,9 +4,9 @@ from .models import CustomUser
 
 # Register your models here.
 class CustomUserAdmin(UserAdmin):
-    model =CustomUser
-    fieldsets = UserAdmin.fieldsets + (
-        ('Additional', {'fields': ('date_of_birth','profile_photo')}),
-    )
+    model = CustomUser
+    fieldsets = list(UserAdmin.fieldsets) + [
+        ('Additional', {'fields': ('date_of_birth', 'profile_photo')}),
+    ]
 
 admin.site.register(CustomUser, CustomUserAdmin)

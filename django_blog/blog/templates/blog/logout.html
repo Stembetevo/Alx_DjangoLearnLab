@@ -1,0 +1,27 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+
+{% block title %}Logged Out - Django Blog{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <h2>You've Been Logged Out</h2>
+    
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li class="message {{ message.tags }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    
+    <div style="text-align: center; margin: 30px 0;">
+        <p>Thank you for visiting. You have been successfully logged out.</p>
+    </div>
+    
+    <div class="auth-links">
+        <p><a href="{% url 'login' %}">Login again</a></p>
+        <p><a href="{% url 'home' %}">Return to Home</a></p>
+    </div>
+</div>
+{% endblock %}
