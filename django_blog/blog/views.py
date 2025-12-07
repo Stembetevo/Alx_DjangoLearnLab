@@ -10,14 +10,14 @@ from rest_framework import generics
 from .models import Post
 from .serializers import PostSerializer
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
-from .forms import PostForm, CommentForm
+from .forms import PostForm, CommentForm, CustomUserCreationForm
 from .models import Comment 
 from .serializers import CommentSerializer  
 
 
 # Sign Up View 
 class SignUpView(CreateView):
-    form_class = UserCreationForm
+    form_class = CustomUserCreationForm
     success_url = reverse_lazy('login')
     template_name = 'blog/register.html'
     
