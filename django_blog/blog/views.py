@@ -280,17 +280,17 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.author = self.request.user
-        form.instance.post_id = self.kwargs['post_id']
+        form.instance.post_id = self.kwargs['pk']
         messages.success(self.request, 'Comment added successfully!')
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['post_id'] = self.kwargs['post_id']
+        context['post_id'] = self.kwargs['pk']
         return context
 
     def get_success_url(self):
-        return reverse_lazy('post-detail', kwargs={'pk': self.kwargs['post_id']})
+        return reverse_lazy('post-detail', kwargs={'pk': self.kwargs['pk']})
 
 
 class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
@@ -298,6 +298,7 @@ class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Comment
     form_class = CommentForm
     template_name = 'blog/comment_form.html'
+    pk_url_kwarg = 'comment_pk'
 
     def form_valid(self, form):
         messages.success(self.request, 'Comment updated successfully!')
@@ -309,17 +310,18 @@ class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['post_id'] = self.object.post.pk #type: ignore
+        context['post_id'] = self.kwargs['pk']
         return context
 
     def get_success_url(self):
-        return reverse_lazy('post-detail', kwargs={'pk': self.object.post.pk}) #type: ignore
+        return reverse_lazy('post-detail', kwargs={'pk': self.kwargs['pk']})
 
 
 class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     """Delete a comment (only by author)"""
     model = Comment
     template_name = 'blog/comment_confirm_delete.html'
+    pk_url_kwarg = 'comment_pk'
 
     def test_func(self):
         comment: Comment = self.get_object() #type: ignore
@@ -330,4 +332,4 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
     def get_success_url(self):
-        return reverse_lazy('post-detail', kwargs={'pk': self.object.post.pk}) #type: ignore
+        return reverse_lazy('post-detail', kwargs={'pk': self.kwargs['pk']})
