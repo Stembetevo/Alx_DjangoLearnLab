@@ -12,7 +12,13 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),
     path('profile/edit/', views.edit_profile, name='edit_profile'),
     
-    # Other URLs
+    # Blog Post CRUD URLs
+    path('posts/', views.PostListView.as_view(), name='post-list'),
+    path('posts/new/', views.PostCreateView.as_view(), name='post-create'),
+    path('posts/<int:pk>/', views.PostDetailView.as_view(), name='post-detail'),
+    path('posts/<int:pk>/edit/', views.PostUpdateView.as_view(), name='post-update'),
+    path('posts/<int:pk>/delete/', views.PostDeleteView.as_view(), name='post-delete'),
+    
+    # Home URL
     path('', views.home, name='home'),
-    path('posts/', views.posts, name='posts'),
 ]
