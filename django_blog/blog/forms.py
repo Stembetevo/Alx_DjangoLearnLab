@@ -66,11 +66,7 @@ class PostForm(forms.ModelForm):
                 'placeholder': 'Write your blog post content here...',
                 'rows': 10,
             }),
-            'tags': TagWidget(attrs={
-                'class': 'form-control',
-                'placeholder': 'Enter tags separated by commas (e.g., Django, Python, Web Development)',
-                'data-role': 'tagsinput',
-            }),
+            'tags': TagWidget(),
         }
         labels = {
             'title': 'Post Title',
