@@ -24,15 +24,15 @@ urlpatterns = [
     path('tags/<str:tag_name>/', views.PostByTagListView.as_view(), name='posts-by-tag'),
     
     # Comment CRUD URLs (Template-based)
-    path('post/<int:post_id>/comments/new/', views.CommentCreateView.as_view(), name='comment-create'),
-    path('post/<int:post_id>/comments/<int:pk>/update/', views.CommentUpdateView.as_view(), name='comment-update'),
-    path('post/<int:post_id>/comments/<int:pk>/delete/', views.CommentDeleteView.as_view(), name='comment-delete'),
+    path('post/<int:post_id>/comment/new/', views.CommentCreateView.as_view(), name='comment-create'),
+    path('post/<int:post_id>/comment/<int:pk>/update/', views.CommentUpdateView.as_view(), name='comment-update'),
+    path('post/<int:post_id>/comment/<int:pk>/delete/', views.CommentDeleteView.as_view(), name='comment-delete'),
     
     # Comment API URLs
-    path('api/posts/<int:post_id>/comments/', views.CommentAPIListView.as_view(), name='comment-api-list'),
-    path('api/posts/<int:post_id>/comments/create/', views.CommentAPICreateView.as_view(), name='comment-api-create'),
-    path('api/comments/<int:pk>/update/', views.CommentAPIUpdateView.as_view(), name='comment-api-update'),
-    path('api/comments/<int:pk>/delete/', views.CommentAPIDeleteView.as_view(), name='comment-api-delete'),
+    path('api/post/<int:post_id>/comment/', views.CommentAPIListView.as_view(), name='comment-api-list'),
+    path('api/post/<int:post_id>/comment/create/', views.CommentAPICreateView.as_view(), name='comment-api-create'),
+    path('api/comment/<int:pk>/update/', views.CommentAPIUpdateView.as_view(), name='comment-api-update'),
+    path('api/comment/<int:pk>/delete/', views.CommentAPIDeleteView.as_view(), name='comment-api-delete'),
     
     # Home URL
     path('', views.home, name='home'),
