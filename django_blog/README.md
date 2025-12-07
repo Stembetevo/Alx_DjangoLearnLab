@@ -662,6 +662,63 @@ INSTALLED_APPS = [
 
 ---
 
+---
+
+## Comment System
+
+A comprehensive commenting system that allows users to engage with blog posts.
+
+### Features
+- View comments (all users)
+- Add comments (logged-in users only)
+- Edit own comments
+- Delete own comments
+- Automatic timestamps and author attribution
+
+### Quick Usage
+
+**Add a Comment:**
+1. Go to any blog post → `/post/<post_id>/`
+2. Scroll to comments section
+3. Type your comment and submit
+4. Must be logged in
+
+**Edit/Delete:**
+- Click "Edit" or "Delete" buttons next to your own comments
+- Only comment authors can modify their comments
+- Deletions are permanent
+
+### Permissions
+
+| User Type | View | Add | Edit Own | Delete Own | Edit Others | Delete Others |
+|-----------|------|-----|----------|------------|-------------|---------------|
+| Anonymous | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Logged In | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
+| Admin | ✅ | ✅ | ✅ (via admin) | ✅ (via admin) | ✅ (via admin) | ✅ (via admin) |
+
+### API Endpoints
+
+```
+GET    /api/posts/<post_id>/comments/          # List comments
+POST   /api/posts/<post_id>/comments/create/   # Create comment
+PUT    /api/comments/<id>/update/              # Update comment
+DELETE /api/comments/<id>/delete/              # Delete comment
+```
+
+### Security
+- CSRF protection on all forms
+- Authentication required for modifications
+- Authorization checks (users can only edit/delete their own comments)
+- XSS and SQL injection prevention
+- Input validation
+
+### Templates
+- `blog/post_detail.html` - Displays comments with post
+- `blog/comment_form.html` - Edit comment form
+- `blog/comment_confirm_delete.html` - Delete confirmation
+
+---
+
 ## Next Steps
 
 - Implement password reset functionality
@@ -670,7 +727,8 @@ INSTALLED_APPS = [
 - Add two-factor authentication
 - Create user roles and permissions
 - Add profile pictures
-- Implement blog post CRUD operations
+- Add comment moderation features
+- Implement nested comment replies
 
 ---
 
@@ -679,3 +737,5 @@ INSTALLED_APPS = [
 - [Django Authentication Documentation](https://docs.djangoproject.com/en/stable/topics/auth/)
 - [Django Forms Documentation](https://docs.djangoproject.com/en/stable/topics/forms/)
 - [Django Security Documentation](https://docs.djangoproject.com/en/stable/topics/security/)
+- [Django REST Framework Documentation](https://www.django-rest-framework.org/)
+- [Django Class-Based Views Documentation](https://docs.djangoproject.com/en/stable/topics/class-based-views/)

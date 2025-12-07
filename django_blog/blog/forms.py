@@ -1,5 +1,5 @@
 from django import forms
-from .models import Post
+from .models import Post, Comment
 from django.contrib.auth.models import User
 
 
@@ -99,3 +99,48 @@ class UserProfileForm(forms.ModelForm):
         if users.exists():
             raise forms.ValidationError('This username is already taken.')
         return username
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ["content"]
+        widgets = {
+            'content': forms.Textarea(attrs={
+                'class': 'form-control',
+                'placeholder': 'Write your comment here...',
+                'rows': 4,
+            }),
+        }
+        labels = {
+            'content': 'Comment',
+        }
+        help_texts = {
+            'content': 'Share your thoughts on this post',
+        }
+    
+    def clean_content(self):
+        #Validate comment content.
+        content = self.cleaned_data.get('content')
+        if not content or content.strip() == '':
+            raise forms.ValidationError('Comment cannot be empty.')
+        if len(content.strip()) < 3:
+            raise forms.ValidationError('Comment must be at least 3 characters long.')
+        if len(content.strip()) > 1000:
+            raise forms.ValidationError('Comment cannot exceed 1000 characters.')
+        return content.strip()
+    
+    def save(self, commit=True, post=None, author=None):
+        #Save comment with post and author if provided.
+        comment = super().save(commit=False)
+        
+        # Set post and author if provided and comment is new
+        if post and not comment.pk:
+            comment.post = post
+        if author and not comment.pk:
+            comment.author = author
+        
+        if commit:
+            comment.save()
+        
+        return comment
+        

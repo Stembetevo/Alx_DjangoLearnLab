@@ -19,6 +19,17 @@ urlpatterns = [
     path('post/<int:pk>/update/', views.PostUpdateView.as_view(), name='post-update'),
     path('post/<int:pk>/delete/', views.PostDeleteView.as_view(), name='post-delete'),
     
+    # Comment CRUD URLs (Template-based)
+    path('post/<int:post_id>/comments/new/', views.CommentCreateView.as_view(), name='comment-create'),
+    path('post/<int:post_id>/comments/<int:pk>/update/', views.CommentUpdateView.as_view(), name='comment-update'),
+    path('post/<int:post_id>/comments/<int:pk>/delete/', views.CommentDeleteView.as_view(), name='comment-delete'),
+    
+    # Comment API URLs
+    path('api/posts/<int:post_id>/comments/', views.CommentAPIListView.as_view(), name='comment-api-list'),
+    path('api/posts/<int:post_id>/comments/create/', views.CommentAPICreateView.as_view(), name='comment-api-create'),
+    path('api/comments/<int:pk>/update/', views.CommentAPIUpdateView.as_view(), name='comment-api-update'),
+    path('api/comments/<int:pk>/delete/', views.CommentAPIDeleteView.as_view(), name='comment-api-delete'),
+    
     # Home URL
     path('', views.home, name='home'),
 ]

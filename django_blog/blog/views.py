@@ -10,7 +10,9 @@ from rest_framework import generics
 from .models import Post
 from .serializers import PostSerializer
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
-from .forms import PostForm
+from .forms import PostForm, CommentForm
+from .models import Comment 
+from .serializers import CommentSerializer  
 
 
 # Sign Up View 
@@ -157,3 +159,119 @@ class PostAPIDeleteView(generics.DestroyAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticated]
+
+
+# Comment API Views
+class CommentAPIListView(generics.ListAPIView):
+    """List all comments for a specific post"""
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    
+    def get_queryset(self):
+        post_id = self.kwargs.get('post_id')
+        return Comment.objects.filter(post_id=post_id)
+
+
+class CommentAPICreateView(generics.CreateAPIView):
+    """Create a new comment on a post"""
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def perform_create(self, serializer):
+        post_id = self.kwargs.get('post_id')
+        serializer.save(author=self.request.user, post_id=post_id)
+
+
+class CommentAPIUpdateView(generics.UpdateAPIView):
+    """Update a comment (only by author)"""
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        # Only allow users to update their own comments
+        return Comment.objects.filter(author=self.request.user)
+
+
+class CommentAPIDeleteView(generics.DestroyAPIView):
+    """Delete a comment (only by author)"""
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        # Only allow users to delete their own comments
+        return Comment.objects.filter(author=self.request.user)
+
+
+# Comment Template-based Views
+class CommentListView(LoginRequiredMixin, ListView):
+    """List all comments for a specific post"""
+    model = Comment
+    template_name = 'blog/comment_list.html'
+    context_object_name = 'comments'
+
+    def get_queryset(self):
+        post_id = self.kwargs['post_id']
+        return Comment.objects.filter(post_id=post_id)
+
+
+class CommentCreateView(LoginRequiredMixin, CreateView):
+    """Create a new comment on a post"""
+    model = Comment
+    form_class = CommentForm
+    template_name = 'blog/comment_form.html'
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        form.instance.post_id = self.kwargs['post_id']
+        messages.success(self.request, 'Comment added successfully!')
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['post_id'] = self.kwargs['post_id']
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy('post-detail', kwargs={'pk': self.kwargs['post_id']})
+
+
+class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    """Update a comment (only by author)"""
+    model = Comment
+    form_class = CommentForm
+    template_name = 'blog/comment_form.html'
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Comment updated successfully!')
+        return super().form_valid(form)
+
+    def test_func(self):
+        comment: Comment = self.get_object()  # type: ignore
+        return self.request.user == comment.author
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['post_id'] = self.object.post.pk #type: ignore
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy('post-detail', kwargs={'pk': self.object.post.pk}) #type: ignore
+
+
+class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    """Delete a comment (only by author)"""
+    model = Comment
+    template_name = 'blog/comment_confirm_delete.html'
+
+    def test_func(self):
+        comment: Comment = self.get_object() #type: ignore
+        return self.request.user == comment.author
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, 'Comment deleted successfully!')
+        return super().delete(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse_lazy('post-detail', kwargs={'pk': self.object.post.pk}) #type: ignore
