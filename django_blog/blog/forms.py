@@ -51,17 +51,6 @@ class CustomUserCreationForm(UserCreationForm):
 
 
 class PostForm(forms.ModelForm):
-    tags = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Enter tags separated by commas (e.g., Django, Python, Web Development)',
-            'data-role': 'tagsinput',
-        }),
-        help_text='Separate tags with commas. New tags will be created automatically.',
-        label='Tags'
-    )
-    
     class Meta:
         model = Post
         fields = ['title', 'content', 'tags']
@@ -76,23 +65,22 @@ class PostForm(forms.ModelForm):
                 'placeholder': 'Write your blog post content here...',
                 'rows': 10,
             }),
+            'tags': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter tags separated by commas (e.g., Django, Python, Web Development)',
+                'data-role': 'tagsinput',
+            }),
         }
         labels = {
             'title': 'Post Title',
             'content': 'Post Content',
+            'tags': 'Tags',
         }
         help_texts = {
             'title': 'Maximum 200 characters',
             'content': 'Write your blog post content in detail',
+            'tags': 'Separate tags with commas. New tags will be created automatically.',
         }
-    
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Pre-populate tags field with existing tags if editing a post
-        if self.instance.pk:
-            existing_tags = self.instance.tags.all()
-            tag_names = ', '.join([tag.name for tag in existing_tags])
-            self.fields['tags'].initial = tag_names
     
     def clean_title(self):
         title = self.cleaned_data.get('title')
@@ -108,32 +96,6 @@ class PostForm(forms.ModelForm):
             raise forms.ValidationError('Content must be at least 10 characters long.')
         return content.strip()
     
-    def clean_tags(self):
-        tags_string = self.cleaned_data.get('tags', '')
-        if not tags_string:
-            return []
-        
-        # Split by comma and clean up each tag
-        tag_list = [tag.strip() for tag in tags_string.split(',') if tag.strip()]
-        
-        # Validate tag names
-        for tag in tag_list:
-            if len(tag) > 50:
-                raise forms.ValidationError(f'Tag "{tag}" is too long. Maximum 50 characters per tag.')
-            if len(tag) < 2:
-                raise forms.ValidationError(f'Tag "{tag}" is too short. Minimum 2 characters per tag.')
-        
-        # Remove duplicates while preserving order
-        seen = set()
-        unique_tags = []
-        for tag in tag_list:
-            tag_lower = tag.lower()
-            if tag_lower not in seen:
-                seen.add(tag_lower)
-                unique_tags.append(tag)
-        
-        return unique_tags
-    
     def save(self, commit=True, user=None):
         post = super().save(commit=False)
         
@@ -143,30 +105,10 @@ class PostForm(forms.ModelForm):
         
         if commit:
             post.save()
-            # Handle tags after post is saved (needed for many-to-many relationship)
-            self.save_tags(post)
+            # save_m2m() is required to save the tags
+            self.save_m2m()
         
         return post
-    
-    def save_tags(self, post):
-        """
-        Handle tag creation and association with the post.
-        Creates new tags if they don't exist and associates them with the post.
-        """
-        tag_names = self.cleaned_data.get('tags', [])
-        
-        # Clear existing tags
-        post.tags.clear()
-        
-        # Process each tag
-        for tag_name in tag_names:
-            # Get or create tag (case-insensitive)
-            tag, created = Tag.objects.get_or_create(
-                name__iexact=tag_name,
-                defaults={'name': tag_name}
-            )
-            # Associate tag with post
-            post.tags.add(tag)
 
 
 class UserProfileForm(forms.ModelForm):

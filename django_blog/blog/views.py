@@ -8,12 +8,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
 from django.db.models import Q
 from rest_framework import generics
-from .models import Post, Tag
-from .serializers import PostSerializer
+from .models import Post, Comment
+from .serializers import PostSerializer, CommentSerializer
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from .forms import PostForm, CommentForm, CustomUserCreationForm
-from .models import Comment 
-from .serializers import CommentSerializer  
+from taggit.models import Tag  
 
 
 # Sign Up View 
@@ -176,8 +175,9 @@ class PostByTagListView(ListView):
     paginate_by = 10
     
     def get_queryset(self):
-        self.tag = get_object_or_404(Tag, name=self.kwargs['tag_name'])
-        return Post.objects.filter(tags=self.tag).order_by('-published_date')
+        tag_slug = self.kwargs['tag_name']
+        self.tag = get_object_or_404(Tag, slug=tag_slug)
+        return Post.objects.filter(tags__in=[self.tag]).order_by('-published_date')
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

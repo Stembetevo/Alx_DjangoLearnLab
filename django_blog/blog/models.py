@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from taggit.managers import TaggableManager
 
 # Create your models here.
 class Post(models.Model):
@@ -8,6 +9,7 @@ class Post(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
     published_date = models.DateTimeField(auto_now_add=True)
     updated_date = models.DateTimeField(auto_now=True)
+    tags = TaggableManager()
     
     class Meta:
         ordering = ['-published_date']
@@ -24,7 +26,6 @@ class Comment(models.Model):
 
 class Tag(models.Model):
     name = models.CharField(max_length=50, unique=True)
-    posts = models.ManyToManyField(Post, related_name='tags', blank=True)
     
     class Meta:
         ordering = ['name']
