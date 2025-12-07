@@ -13,11 +13,11 @@ urlpatterns = [
     path('profile/edit/', views.edit_profile, name='edit_profile'),
     
     # Blog Post CRUD URLs
-    path('posts/', views.PostListView.as_view(), name='post-list'),
-    path('posts/new/', views.PostCreateView.as_view(), name='post-create'),
-    path('posts/<int:pk>/', views.PostDetailView.as_view(), name='post-detail'),
-    path('posts/<int:pk>/edit/', views.PostUpdateView.as_view(), name='post-update'),
-    path('posts/<int:pk>/delete/', views.PostDeleteView.as_view(), name='post-delete'),
+    path('post/', views.PostListView.as_view(), name='post-list'),
+    path('post/new/', views.PostCreateView.as_view(), name='post-create'),
+    path('post/<int:pk>/', views.PostDetailView.as_view(), name='post-detail'),
+    path('post/<int:pk>/edit/', views.PostUpdateView.as_view(), name='post-update'),
+    path('post/<int:pk>/delete/', views.PostDeleteView.as_view(), name='post-delete'),
     
     # Home URL
     path('', views.home, name='home'),
