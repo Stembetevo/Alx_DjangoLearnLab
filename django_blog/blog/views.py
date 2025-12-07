@@ -175,7 +175,7 @@ class PostByTagListView(ListView):
     paginate_by = 10
     
     def get_queryset(self):
-        tag_slug = self.kwargs['tag_name']
+        tag_slug = self.kwargs['tag_slug']
         self.tag = get_object_or_404(Tag, slug=tag_slug)
         return Post.objects.filter(tags__in=[self.tag]).order_by('-published_date')
     
