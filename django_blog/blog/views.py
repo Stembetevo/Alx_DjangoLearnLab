@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -6,8 +6,9 @@ from django.contrib import messages
 from django.views.generic import CreateView, ListView, DetailView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
+from django.db.models import Q
 from rest_framework import generics
-from .models import Post
+from .models import Post, Tag
 from .serializers import PostSerializer
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from .forms import PostForm, CommentForm, CustomUserCreationForm
@@ -62,6 +63,11 @@ class PostListView(ListView):
     context_object_name = 'posts'
     paginate_by = 5
     ordering = ['-published_date']
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['all_tags'] = Tag.objects.all()
+        return context
 
 
 class PostDetailView(DetailView):
@@ -128,6 +134,56 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, 'Post deleted successfully!')
         return super().delete(request, *args, **kwargs)
+
+
+# Search View
+class PostSearchView(ListView):
+    """
+    Search for posts by title, content, or tags.
+    Uses Django Q objects for complex queries.
+    """
+    model = Post
+    template_name = 'blog/search_results.html'
+    context_object_name = 'posts'
+    paginate_by = 10
+    
+    def get_queryset(self):
+        query = self.request.GET.get('q', '')
+        if query:
+            # Use Q objects for complex OR queries across multiple fields
+            return Post.objects.filter(
+                Q(title__icontains=query) |
+                Q(content__icontains=query) |
+                Q(tags__name__icontains=query)
+            ).distinct().order_by('-published_date')
+        return Post.objects.none()
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['query'] = self.request.GET.get('q', '')
+        context['all_tags'] = Tag.objects.all()
+        return context
+
+
+# Tag Filter View
+class PostByTagListView(ListView):
+    """
+    Display all posts filtered by a specific tag.
+    """
+    model = Post
+    template_name = 'blog/posts_by_tag.html'
+    context_object_name = 'posts'
+    paginate_by = 10
+    
+    def get_queryset(self):
+        self.tag = get_object_or_404(Tag, name=self.kwargs['tag_name'])
+        return Post.objects.filter(tags=self.tag).order_by('-published_date')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['tag'] = self.tag
+        context['all_tags'] = Tag.objects.all()
+        return context
 
 
 # API Views (REST Framework)

@@ -13,6 +13,7 @@
             <ul>
                 <li><a href="{% url 'home' %}">Home</a></li>
                 <li><a href="{% url 'post-list' %}">Blog Posts</a></li>
+                <li><a href="{% url 'post-search' %}">Search</a></li>
                 {% if user.is_authenticated %}
                     <li><a href="{% url 'profile' %}">Profile</a></li>
                     <li><a href="{% url 'logout' %}">Logout</a></li>

@@ -23,5 +23,11 @@ class Comment(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 class Tag(models.Model):
-    name = models.CharField(max_length=200)
-    posts = models.ManyToManyField(Post, related_name='tags')
+    name = models.CharField(max_length=50, unique=True)
+    posts = models.ManyToManyField(Post, related_name='tags', blank=True)
+    
+    class Meta:
+        ordering = ['name']
+    
+    def __str__(self):
+        return self.name
