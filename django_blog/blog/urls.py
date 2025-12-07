@@ -24,7 +24,7 @@ urlpatterns = [
     path('tags/<str:tag_name>/', views.PostByTagListView.as_view(), name='posts-by-tag'),
     
     # Comment CRUD URLs (Template-based)
-    path('post/<int:post_id>/comment/new/', views.CommentCreateView.as_view(), name='comment-create'),
+    path('post/<int:post_id>/comments/new/', views.CommentCreateView.as_view(), name='comment-create'),
     path('post/<int:post_id>/comment/<int:pk>/update/', views.CommentUpdateView.as_view(), name='comment-update'),
     path('post/<int:post_id>/comment/<int:pk>/delete/', views.CommentDeleteView.as_view(), name='comment-delete'),
     
