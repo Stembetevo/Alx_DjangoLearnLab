@@ -1,7 +1,8 @@
 from django.shortcuts import render
-from rest_framework import generics, permissions, status, filters
+from rest_framework import viewsets, generics, permissions, status, filters
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from .models import Post, Comment
 from .serializers import PostSerializer, CommentSerializer
@@ -42,16 +43,15 @@ class FeedView(generics.ListAPIView):
         return posts
 
 
-class PostListCreateView(generics.ListCreateAPIView):
+class PostViewSet(viewsets.ModelViewSet):
     """
-    View for listing all posts and creating new posts.
-    GET: List all posts (with pagination and filtering)
-    POST: Create a new post (authenticated users only)
+    ViewSet for CRUD operations on posts.
     
-    Filtering options:
-    - ?search=keyword - Search in title and content
-    - ?title=text - Filter by title
-    - ?content=text - Filter by content
+    list: GET /posts/ - List all posts (with pagination and filtering)
+    create: POST /posts/ - Create a new post (authenticated users only)
+    retrieve: GET /posts/{id}/ - Retrieve a specific post
+    update: PUT/PATCH /posts/{id}/ - Update a post (author only)
+    destroy: DELETE /posts/{id}/ - Delete a post (author only)
     """
     queryset = Post.objects.all().order_by('-created_at')
     serializer_class = PostSerializer
@@ -63,61 +63,34 @@ class PostListCreateView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         # Automatically set the author to the current user
         serializer.save(author=self.request.user)
-
-
-class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
+    
+    def get_permissions(self):
+        # Only the post author can update or delete their post
+        if self.action in ['update', 'partial_update', 'destroy']:
+            return [permissions.IsAuthenticated(), IsAuthorPermission()]
+        return super().get_permissions()
+class CommentViewSet(viewsets.ModelViewSet):
     """
-    View for retrieving, updating, and deleting a specific post.
-    GET: Retrieve a post
-    PUT/PATCH: Update a post (author only)
-    DELETE: Delete a post (author only)
+    ViewSet for CRUD operations on comments.
+    
+    list: GET /comments/ - List all comments (with pagination)
+    create: POST /comments/ - Create a new comment (authenticated users only)
+    retrieve: GET /comments/{id}/ - Retrieve a specific comment
+    update: PUT/PATCH /comments/{id}/ - Update a comment (author only)
+    destroy: DELETE /comments/{id}/ - Delete a comment (author only)
     """
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-class CommentListCreateView(generics.ListCreateAPIView):
-    """
-    View for listing comments on a post and creating new comments.
-    GET: List all comments for a specific post (with pagination)
-    POST: Create a new comment (authenticated users only)
-    """
+    queryset = Comment.objects.all().order_by('-created_at')
     serializer_class = CommentSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     pagination_class = StandardResultsSetPagination
     
-    def get_queryset(self):
-        # Get comments for a specific post
-        post_id = self.kwargs.get('post_id')
-        return Comment.objects.filter(post_id=post_id).order_by('-created_at')
-    
-    def create(self, serializer):
-        # Automatically set the user to the current user and post from URL
-        post_id = self.kwargs.get('post_id')
-        serializer.save(user=self.request.user, post_id=post_id)
-        # Get comments for a specific post
-        post_id = self.kwargs.get('post_id')
-        return Comment.objects.filter(post_id=post_id).order_by('-created_at')
-    
     def perform_create(self, serializer):
-        # Automatically set the user to the current user and post from URL
-        post_id = self.kwargs.get('post_id')
-        serializer.save(user=self.request.user, post_id=post_id)
-
-
-class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
-    """
-    View for retrieving, updating, and deleting a specific comment.
-    GET: Retrieve a comment
-    PUT/PATCH: Update a comment (author only)
-    DELETE: Delete a comment (author only)
-    """
-    queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+        # Automatically set the user to the current user
+        serializer.save(user=self.request.user)
     
     def get_permissions(self):
         # Only the comment author can update or delete their comment
-        if self.request.method in ['PUT', 'PATCH', 'DELETE']:
+        if self.action in ['update', 'partial_update', 'destroy']:
             return [permissions.IsAuthenticated(), IsCommentAuthorPermission()]
         return super().get_permissions()
 
