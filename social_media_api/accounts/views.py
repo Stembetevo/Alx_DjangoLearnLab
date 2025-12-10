@@ -17,7 +17,7 @@ class RegisterView(APIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save() #type:ignore
         
-        # Create token for the user
+        # Token is created by the serializer, just retrieve it
         token, created = Token.objects.get_or_create(user=user)
 
         return Response({
