@@ -137,10 +137,6 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 # Search View
 class PostSearchView(ListView):
-    """
-    Search for posts by title, content, or tags.
-    Uses Django Q objects for complex queries.
-    """
     model = Post
     template_name = 'blog/search_results.html'
     context_object_name = 'posts'
