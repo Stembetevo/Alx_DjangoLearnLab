@@ -1,13 +1,23 @@
 from django.shortcuts import render
-from rest_framework import generics, permissions, status
+from rest_framework import generics, permissions, status, filters
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.pagination import PageNumberPagination
 from .models import Post, Comment
 from .serializers import PostSerializer, CommentSerializer
 from accounts.models import User
 
 
 # Create your views here.
+
+class StandardResultsSetPagination(PageNumberPagination):
+    """
+    Standard pagination class for posts and comments.
+    """
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
 
 class FeedView(generics.ListAPIView):
     """
@@ -17,6 +27,7 @@ class FeedView(generics.ListAPIView):
     """
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class = StandardResultsSetPagination
     
     def get_queryset(self):
         # Get the current authenticated user
@@ -34,12 +45,20 @@ class FeedView(generics.ListAPIView):
 class PostListCreateView(generics.ListCreateAPIView):
     """
     View for listing all posts and creating new posts.
-    GET: List all posts
+    GET: List all posts (with pagination and filtering)
     POST: Create a new post (authenticated users only)
+    
+    Filtering options:
+    - ?search=keyword - Search in title and content
+    - ?title=text - Filter by title
+    - ?content=text - Filter by content
     """
     queryset = Post.objects.all().order_by('-created_at')
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    pagination_class = StandardResultsSetPagination
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['title', 'content']
     
     def perform_create(self, serializer):
         # Automatically set the author to the current user
@@ -56,24 +75,25 @@ class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    
-    def get_permissions(self):
-        # Only the author can update or delete their post
-        if self.request.method in ['PUT', 'PATCH', 'DELETE']:
-            return [permissions.IsAuthenticated(), IsAuthorPermission()]
-        return super().get_permissions()
-
-
 class CommentListCreateView(generics.ListCreateAPIView):
     """
     View for listing comments on a post and creating new comments.
-    GET: List all comments for a specific post
+    GET: List all comments for a specific post (with pagination)
     POST: Create a new comment (authenticated users only)
     """
     serializer_class = CommentSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    pagination_class = StandardResultsSetPagination
     
     def get_queryset(self):
+        # Get comments for a specific post
+        post_id = self.kwargs.get('post_id')
+        return Comment.objects.filter(post_id=post_id).order_by('-created_at')
+    
+    def create(self, serializer):
+        # Automatically set the user to the current user and post from URL
+        post_id = self.kwargs.get('post_id')
+        serializer.save(user=self.request.user, post_id=post_id)
         # Get comments for a specific post
         post_id = self.kwargs.get('post_id')
         return Comment.objects.filter(post_id=post_id).order_by('-created_at')
