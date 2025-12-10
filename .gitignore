@@ -1,0 +1,19 @@
+./migrations
+/__pycache__
+*.pyc
+*.pyo
+__pycache__/
+*.egg-info/
+.DS_Store
+venv/
+I'd be happy to help, but your question seems incomplete. You started with "For all the projects is it possible" but didn't finish.
+*.log
+.vscode/
+.idea/
+*.swp
+*.swo
+node_modules/
+dist/
+build/
+.env
+db.sqlite3
