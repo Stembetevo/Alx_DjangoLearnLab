@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework import permissions
 from rest_framework.authtoken.models import Token
 from .serializers import RegisterSerializer, LoginSerializer, UserSerializer
 from rest_framework.response import Response
@@ -14,7 +14,7 @@ CustomUser = User
 # Create your views here.
 class RegisterView(APIView):
 
-    permission_classes = [AllowAny]
+    permission_classes = [permissions.AllowAny]
 
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
@@ -36,7 +36,7 @@ class RegisterView(APIView):
 
 class LoginView(APIView):
     
-    permission_classes = [AllowAny]
+    permission_classes = [permissions.AllowAny]
     
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
@@ -62,7 +62,7 @@ class ProfileView(generics.RetrieveUpdateAPIView):
     PUT/PATCH: Update current user's profile
     """
     serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
     
     def get_object(self):
         # Return the authenticated user's profile
@@ -76,7 +76,7 @@ class FollowUserView(generics.GenericAPIView):
     Only authenticated users can follow others.
     Users cannot follow themselves.
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
     queryset = CustomUser.objects.all()
     
     def post(self, request, user_id):
@@ -113,7 +113,7 @@ class FollowUserView(generics.GenericAPIView):
 
 
 class UnfollowUserView(generics.GenericAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
     queryset = CustomUser.objects.all()
     
     def post(self, request, user_id):
