@@ -8,6 +8,9 @@ from rest_framework import status, generics
 from rest_framework.decorators import api_view, permission_classes
 from .models import User
 
+# Alias for CustomUser
+CustomUser = User
+
 # Create your views here.
 class RegisterView(APIView):
 
@@ -74,7 +77,7 @@ class FollowUserView(generics.GenericAPIView):
     Users cannot follow themselves.
     """
     permission_classes = [IsAuthenticated]
-    queryset = User.objects.all()
+    queryset = CustomUser.objects.all()
     
     def post(self, request, user_id):
         # Get the user to follow
@@ -111,7 +114,7 @@ class FollowUserView(generics.GenericAPIView):
 
 class UnfollowUserView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
-    queryset = User.objects.all()
+    queryset = CustomUser.objects.all()
     
     def post(self, request, user_id):
         # Get the user to unfollow
