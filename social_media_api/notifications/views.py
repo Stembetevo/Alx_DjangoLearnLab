@@ -3,7 +3,7 @@ from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
-from .models import Notifications
+from .models import Notification
 from .serializers import NotificationSerializer
 
 
@@ -37,7 +37,7 @@ class NotificationListView(generics.ListAPIView):
         
         # Get all notifications for the user, ordered by read status and timestamp
         # Unread notifications (read=False) come first due to ordering
-        return Notifications.objects.filter(recipient=user).order_by('read', '-timestamp')
+        return Notification.objects.filter(recipient=user).order_by('read', '-timestamp')
     
     def list(self, request, *args, **kwargs):
         """
@@ -72,8 +72,8 @@ class MarkNotificationAsReadView(APIView):
     
     def post(self, request, pk):
         try:
-            notification = Notifications.objects.get(pk=pk, recipient=request.user)
-        except Notifications.DoesNotExist:
+            notification = Notification.objects.get(pk=pk, recipient=request.user)
+        except Notification.DoesNotExist:
             return Response(
                 {'error': 'Notification not found.'},
                 status=status.HTTP_404_NOT_FOUND
@@ -101,7 +101,7 @@ class MarkAllNotificationsAsReadView(APIView):
         user = request.user
         
         # Update all unread notifications to read
-        updated_count = Notifications.objects.filter(
+        updated_count = Notification.objects.filter(
             recipient=user,
             read=False
         ).update(read=True)

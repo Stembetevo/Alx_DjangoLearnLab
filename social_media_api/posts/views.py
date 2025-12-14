@@ -7,7 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from .models import Post, Comment, Like
 from .serializers import PostSerializer, CommentSerializer
 from accounts.models import User
-from notifications.models import Notifications
+from notifications.models import Notification
 
 
 # Create your views here.
@@ -92,7 +92,7 @@ class CommentViewSet(viewsets.ModelViewSet):
         # Generate notification to post author (if not commenting on own post)
         if comment.post.author != self.request.user:
             content_type = ContentType.objects.get_for_model(Post)
-            Notifications.objects.create(
+            Notification.objects.create(
                 recipient=comment.post.author,
                 actor=self.request.user,
                 verb='commented on your post',
@@ -154,7 +154,7 @@ class LikePostView(APIView):
         # Generate notification to post author (if not liking own post)
         if post.author != user:
             content_type = ContentType.objects.get_for_model(Post)
-            Notifications.objects.create(
+            Notification.objects.create(
                 recipient=post.author,
                 actor=user,
                 verb='liked your post',

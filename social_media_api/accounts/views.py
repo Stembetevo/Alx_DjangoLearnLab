@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework import status, generics
 from rest_framework.decorators import api_view, permission_classes
 from .models import User
-from notifications.models import Notifications
+from notifications.models import Notification
 
 # Alias for CustomUser
 CustomUser = User
@@ -104,7 +104,7 @@ class FollowUserView(generics.GenericAPIView):
         
         # Generate notification to the user being followed
         content_type = ContentType.objects.get_for_model(User)
-        Notifications.objects.create(
+        Notification.objects.create(
             recipient=user_to_follow,
             actor=request.user,
             verb='started following you',

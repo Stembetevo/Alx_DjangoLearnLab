@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Notifications
+from .models import Notification
 from accounts.serializers import UserSerializer
 
 
@@ -8,7 +8,7 @@ class NotificationSerializer(serializers.ModelSerializer):
     target_type = serializers.SerializerMethodField()
     
     class Meta:
-        model = Notifications
+        model = Notification
         fields = ['id', 'recipient', 'actor', 'verb', 'target_type', 'object_id', 'timestamp', 'read']
         read_only_fields = ['id', 'recipient', 'actor', 'verb', 'target_type', 'object_id', 'timestamp']
     
