@@ -2,7 +2,6 @@ from rest_framework import viewsets, generics, permissions, filters, status
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.shortcuts import get_object_or_404
 from django.contrib.contenttypes.models import ContentType
 from .models import Post, Comment, Like
 from .serializers import PostSerializer, CommentSerializer
@@ -138,18 +137,17 @@ class LikePostView(APIView):
     
     def post(self, request, pk):
         # Get the post to like
-        post = get_object_or_404(Post, pk=pk)
+        post = generics.get_object_or_404(Post, pk=pk)
         user = request.user
         
-        # Check if user has already liked this post
-        if Like.objects.filter(post=post, user=user).exists():
+        # Use get_or_create to avoid duplicate likes
+        like, created = Like.objects.get_or_create(user=request.user, post=post)
+        
+        if not created:
             return Response(
                 {'error': 'You have already liked this post.'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        
-        # Create the like
-        like = Like.objects.create(post=post, user=user)
         
         # Generate notification to post author (if not liking own post)
         if post.author != user:
@@ -183,7 +181,7 @@ class UnlikePostView(APIView):
     
     def post(self, request, pk):
         # Get the post to unlike
-        post = get_object_or_404(Post, pk=pk)
+        post = generics.get_object_or_404(Post, pk=pk)
         user = request.user
         
         # Check if user has liked this post
