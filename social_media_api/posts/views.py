@@ -1,12 +1,13 @@
-from django.shortcuts import render
-from rest_framework import viewsets, generics, permissions, status, filters
+from rest_framework import viewsets, generics, permissions, filters, status
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.decorators import action
-from rest_framework.pagination import PageNumberPagination
-from .models import Post, Comment
+from django.shortcuts import get_object_or_404
+from django.contrib.contenttypes.models import ContentType
+from .models import Post, Comment, Like
 from .serializers import PostSerializer, CommentSerializer
 from accounts.models import User
+from notifications.models import Notifications
 
 
 # Create your views here.
@@ -86,7 +87,18 @@ class CommentViewSet(viewsets.ModelViewSet):
     
     def perform_create(self, serializer):
         # Automatically set the user to the current user
-        serializer.save(user=self.request.user)
+        comment = serializer.save(user=self.request.user)
+        
+        # Generate notification to post author (if not commenting on own post)
+        if comment.post.author != self.request.user:
+            content_type = ContentType.objects.get_for_model(Post)
+            Notifications.objects.create(
+                recipient=comment.post.author,
+                actor=self.request.user,
+                verb='commented on your post',
+                content_type=content_type,
+                object_id=comment.post.id
+            )
     
     def get_permissions(self):
         # Only the comment author can update or delete their comment
@@ -112,3 +124,85 @@ class IsCommentAuthorPermission(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         # Check if the user is the author of the comment
         return obj.user == request.user
+
+
+class LikePostView(APIView):
+    """
+    View for liking a post.
+    POST: Like a post by its ID
+    Only authenticated users can like posts.
+    Users cannot like a post multiple times.
+    Generates a notification to the post author when liked.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self, request, pk):
+        # Get the post to like
+        post = get_object_or_404(Post, pk=pk)
+        user = request.user
+        
+        # Check if user has already liked this post
+        if Like.objects.filter(post=post, user=user).exists():
+            return Response(
+                {'error': 'You have already liked this post.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Create the like
+        like = Like.objects.create(post=post, user=user)
+        
+        # Generate notification to post author (if not liking own post)
+        if post.author != user:
+            content_type = ContentType.objects.get_for_model(Post)
+            Notifications.objects.create(
+                recipient=post.author,
+                actor=user,
+                verb='liked your post',
+                content_type=content_type,
+                object_id=post.id #type: ignore
+            )
+        
+        return Response(
+            {
+                'message': f'You liked the post "{post.title}".',
+                'post_id': post.id, #type: ignore
+                'likes_count': Like.objects.filter(post=post).count()
+            },
+            status=status.HTTP_201_CREATED
+        )
+
+
+class UnlikePostView(APIView):
+    """
+    View for unliking a post.
+    POST: Unlike a post by its ID
+    Only authenticated users can unlike posts.
+    Users can only unlike posts they have previously liked.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self, request, pk):
+        # Get the post to unlike
+        post = get_object_or_404(Post, pk=pk)
+        user = request.user
+        
+        # Check if user has liked this post
+        try:
+            like = Like.objects.get(post=post, user=user)
+        except Like.DoesNotExist:
+            return Response(
+                {'error': 'You have not liked this post.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Delete the like
+        like.delete()
+        
+        return Response(
+            {
+                'message': f'You unliked the post "{post.title}".',
+                'post_id': post.id, #type: ignore
+                'likes_count': Like.objects.filter(post=post).count()
+            },
+            status=status.HTTP_200_OK
+        )

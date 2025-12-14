@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404
+from django.contrib.contenttypes.models import ContentType
 from rest_framework.views import APIView
 from rest_framework import permissions
 from rest_framework.authtoken.models import Token
@@ -7,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework import status, generics
 from rest_framework.decorators import api_view, permission_classes
 from .models import User
+from notifications.models import Notifications
 
 # Alias for CustomUser
 CustomUser = User
@@ -99,6 +101,16 @@ class FollowUserView(generics.GenericAPIView):
         
         # Add to following list (user follows user_to_follow)
         request.user.following.add(user_to_follow)
+        
+        # Generate notification to the user being followed
+        content_type = ContentType.objects.get_for_model(User)
+        Notifications.objects.create(
+            recipient=user_to_follow,
+            actor=request.user,
+            verb='started following you',
+            content_type=content_type,
+            object_id=user_to_follow.id #type: ignore
+        )
         
         return Response(
             {
